@@ -9,6 +9,9 @@ const envSchema = z.object({
 
 	CLIENT_DEVELOPMENT_URL: z.string(),
 	CLIENT_PRODUCTION_URL: z.string(),
+
+	DATABASE_URI: z.string(),
+	DATABASE_NAME: z.string(),
 });
 
 const _env = envSchema.safeParse(process.env);
