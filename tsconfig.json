@@ -1,0 +1,34 @@
+{
+	"compilerOptions": {
+		"rootDir": "./src",
+		"outDir": "./dist",
+		"module": "nodenext",
+		"target": "esnext",
+		"types": [],
+		"baseUrl": "./src",
+		"paths": {
+			"@/*": ["src/*"]
+		},
+		"typeRoots": ["./src/types", "./node_modules/@types"],
+		"sourceMap": true,
+		"declaration": true,
+		"declarationMap": true,
+		"noUncheckedIndexedAccess": true,
+		"exactOptionalPropertyTypes": true,
+		"noImplicitReturns": true,
+		"noImplicitOverride": true,
+		"noUnusedLocals": true,
+		"noUnusedParameters": true,
+		"noFallthroughCasesInSwitch": true,
+		"noPropertyAccessFromIndexSignature": true,
+		"strict": true,
+		"jsx": "react-jsx",
+		"isolatedModules": true,
+		"noUncheckedSideEffectImports": true,
+		"moduleDetection": "force",
+		"skipLibCheck": true,
+		"removeComments": true
+	},
+	"include": ["src/**/*.ts"],
+	"exclude": ["node_modules", "dist"]
+}
