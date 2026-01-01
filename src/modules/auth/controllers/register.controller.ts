@@ -16,6 +16,7 @@ import Logger from 'lib/logger';
 import getRandomOTP from 'helper/otp.helper';
 import { registerEmailTemplate } from 'templates/auth/registerMail.template';
 import { emailQueue } from 'jobs/queues/email.queue';
+import { VERIFICATION_CODE_EXPIRATION_TIME } from '../../../constants';
 
 export const registerController = asyncHandler(
 	async (req: Request<object, object, IRegisterBody>, res: Response) => {
@@ -73,7 +74,7 @@ export const registerController = asyncHandler(
 						verificationStatus: VerificationCodeStatus.PENDING,
 						type: VerificationCodeType.ACCOUNT_ACTIVATION,
 						issuedAt: new Date(),
-						expiredAt: new Date(Date.now() + 30 * 60 * 1000),
+						expiredAt: new Date(Date.now() + VERIFICATION_CODE_EXPIRATION_TIME),
 					},
 				],
 				{ session },
@@ -94,7 +95,6 @@ export const registerController = asyncHandler(
 						subject: 'Account activation code',
 						body: registerEmailTemplate(name, code),
 						source: EmailSource.SYSTEM,
-						sendAt: new Date(),
 						status: EmailStatus.PENDING,
 					},
 				],
