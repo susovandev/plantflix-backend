@@ -1,19 +1,18 @@
 import { Queue } from 'bullmq';
 import { redisConnection } from 'config/redis.config';
+import { EMAIL_JOB_DELAY, EMAIL_JOB_RETRY_COUNT, EMAIL_QUEUE_NAME } from '../../constants';
 
 export interface ISendEmailJob {
 	emailId: string;
 }
 
-export const EMAIL_QUEUE_NAME = 'email-queue';
-
 export const emailQueue = new Queue(EMAIL_QUEUE_NAME, {
 	connection: redisConnection,
 	defaultJobOptions: {
-		attempts: 3,
+		attempts: EMAIL_JOB_RETRY_COUNT, // Number of times to retry the job
 		backoff: {
 			type: 'exponential',
-			delay: 5000,
+			delay: EMAIL_JOB_DELAY, // Initial delay in milliseconds
 		},
 		removeOnComplete: true,
 		removeOnFail: false,

@@ -5,3 +5,8 @@ export interface IRegisterBody extends Request {
 	email: string;
 	password: string;
 }
+
+export interface IVerifyOtpBody extends Request {
+	email: string;
+	code: string;
+}

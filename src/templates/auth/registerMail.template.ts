@@ -46,7 +46,7 @@ export const registerEmailTemplate = (name: string, otp: string): string => `
                     color: #333333;
                   "
                 >
-                  Email Verification
+                  Account Verification Request
                 </h1>
                 <p
                   style="
@@ -85,14 +85,14 @@ export const registerEmailTemplate = (name: string, otp: string): string => `
             <tr>
               <td>
                 <p style="font-size: 15px; color: #333333;">
-                  This OTP will expire in <strong>1.30 minutes</strong> for
+                  This OTP will expire in <strong>3 minutes</strong> for
                   security reasons.<br />
                   If you did not request this, please ignore this email.
                 </p>
 
                 <p style="font-size: 15px; margin-top: 25px; color: #555555;">
                   Regards,<br />
-                  <strong>Auth Service</strong>
+                  <strong>Plantflix Team 🪴</strong>
                 </p>
 
                 <hr style="margin: 30px 0; opacity: 0.2;" />
@@ -104,7 +104,7 @@ export const registerEmailTemplate = (name: string, otp: string): string => `
                     color: #999999;
                   "
                 >
-                  © 2025 Plantflix. All rights reserved.<br />
+                  © 2026 Plantflix. All rights reserved.<br />
                   This is an automated email. Please do not reply.
                 </p>
               </td>

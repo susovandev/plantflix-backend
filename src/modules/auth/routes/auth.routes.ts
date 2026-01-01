@@ -1,16 +1,27 @@
 import { Router } from 'express';
 import { registerController } from '../controllers/register.controller';
-import { registerSchema } from '../validations/auth.validation';
+import {
+	registerValidationSchema,
+	verifyOTPValidationSchema,
+} from '../validations/auth.validation';
 import { validateRequest } from 'middlewares/validation.middleware';
 import { validateEmptyBody } from 'middlewares/validateBody.middleware';
+import { verifyOTPController } from '../controllers/verifyOtp.controller';
 
 const authRouter = Router();
 
 authRouter.post(
 	'/register',
 	validateEmptyBody,
-	validateRequest(registerSchema),
+	validateRequest(registerValidationSchema),
 	registerController,
+);
+
+authRouter.post(
+	'/verify-otp',
+	validateEmptyBody,
+	validateRequest(verifyOTPValidationSchema),
+	verifyOTPController,
 );
 
 export default authRouter;
