@@ -14,3 +14,7 @@ export const verifyOTPValidationSchema = z.object({
 });
 
 export type TVerifyOtpDTO = z.infer<typeof verifyOTPValidationSchema>;
+
+export const resendOTPValidationSchema = z.object({ email: z.string().email() });
+
+export type TResendOtpDTO = z.infer<typeof resendOTPValidationSchema>;

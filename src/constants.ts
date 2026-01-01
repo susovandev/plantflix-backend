@@ -4,6 +4,7 @@ export const API_PREFIX = `/api/${API_VERSION}`;
 export const BCRYPT_SALT_ROUNDS = 10;
 
 export const VERIFICATION_CODE_EXPIRATION_TIME = 3 * 60 * 1000; // 3 minutes
+export const OTP_RESEND_COOLDOWN_TIME = 2 * 60 * 1000; // 1 minute
 
 export const EMAIL_QUEUE_NAME = 'email-queue';
 export const EMAIL_QUEUE_ACTION_NAME = 'send-email';
