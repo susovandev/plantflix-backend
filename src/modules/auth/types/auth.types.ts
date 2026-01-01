@@ -10,3 +10,7 @@ export interface IVerifyOtpBody extends Request {
 	email: string;
 	code: string;
 }
+
+export interface IResendOtpBody extends Request {
+	email: string;
+}
