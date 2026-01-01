@@ -34,6 +34,8 @@ const verificationCodeSchema = new mongoose.Schema<IVerificationCodeDocument>({
 	verifiedAt: { type: Date },
 });
 
+verificationCodeSchema.index({ userId: 1, code: 1, type: 1, verificationStatus: 1 });
+
 export default mongoose.model<IVerificationCodeDocument>(
 	'VerificationCode',
 	verificationCodeSchema,
