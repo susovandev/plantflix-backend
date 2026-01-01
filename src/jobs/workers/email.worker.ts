@@ -3,11 +3,13 @@ import { redisConnection } from 'config/redis.config';
 import emailModel, { EmailStatus } from 'models/email.model';
 import { sendEmailService } from 'helper/sendEmail.helper';
 import Logger from 'lib/logger';
-import { EMAIL_QUEUE_NAME, type ISendEmailJob } from '../queues/email.queue';
+import { type ISendEmailJob } from '../queues/email.queue';
+import { EMAIL_JOB_CONCURRENCY, EMAIL_QUEUE_NAME } from '../../constants';
 
 export const emailWorker = new Worker<ISendEmailJob>(
 	EMAIL_QUEUE_NAME,
 	async (job: Job<ISendEmailJob>) => {
+		Logger.info(`Processing email job: ${job.id}`);
 		const { emailId } = job.data;
 
 		const emailDoc = await emailModel.findById(emailId);
@@ -35,11 +37,11 @@ export const emailWorker = new Worker<ISendEmailJob>(
 			await emailDoc.save();
 
 			Logger.error(`Email sending failed: ${emailId}`, error);
-			throw error; // IMPORTANT → triggers retry
+			throw error; //! IMPORTANT → triggers retry
 		}
 	},
 	{
 		connection: redisConnection,
-		concurrency: 5,
+		concurrency: EMAIL_JOB_CONCURRENCY,
 	},
 );
