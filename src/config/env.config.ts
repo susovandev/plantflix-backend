@@ -12,6 +12,16 @@ const envSchema = z.object({
 
 	DATABASE_URI: z.string(),
 	DATABASE_NAME: z.string(),
+
+	MAIL_SERVICE: z.string(),
+	MAIL_HOST: z.string(),
+	MAIL_PORT: z.coerce.number(),
+	MAIL_USER: z.string(),
+	MAIL_PASSWORD: z.string(),
+
+	REDIS_HOST: z.string(),
+	REDIS_PORT: z.coerce.number(),
+	REDIS_PASSWORD: z.string(),
 });
 
 const _env = envSchema.safeParse(process.env);

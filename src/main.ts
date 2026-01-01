@@ -1,3 +1,4 @@
+import './jobs/workers/email.worker';
 import initializeApp from 'app';
 import { env } from 'config/env.config';
 import connectDB, { disconnectDB } from 'db/db';
