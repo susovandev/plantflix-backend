@@ -12,7 +12,7 @@ export enum AccountStatus {
 	SUSPENDED = 'suspended',
 	PENDING = 'pending',
 }
-interface IUserDocument extends mongoose.Document {
+export interface IUserDocument extends mongoose.Document {
 	name: string;
 	email: string;
 	passwordHash: string;

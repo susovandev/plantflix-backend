@@ -26,6 +26,9 @@ const envSchema = z.object({
 	REDIS_HOST: z.string(),
 	REDIS_PORT: z.coerce.number(),
 	REDIS_PASSWORD: z.string(),
+
+	ACCESS_TOKEN_SECRET_KEY: z.string(),
+	REFRESH_TOKEN_SECRET_KEY: z.string(),
 });
 
 const _env = envSchema.safeParse(process.env);

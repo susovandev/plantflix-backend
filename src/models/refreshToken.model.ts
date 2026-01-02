@@ -5,7 +5,8 @@ export interface IRefreshTokenDocument extends mongoose.Document {
 	tokenHash: string;
 	expiredAt: Date;
 	removedAt?: Date;
-	deviceInfo?: string;
+	userAgent?: string;
+	ipAddress?: string;
 }
 
 const refreshTokenSchema = new mongoose.Schema<IRefreshTokenDocument>({
@@ -13,7 +14,8 @@ const refreshTokenSchema = new mongoose.Schema<IRefreshTokenDocument>({
 	tokenHash: { type: String, required: true },
 	expiredAt: { type: Date, required: true },
 	removedAt: { type: Date },
-	deviceInfo: { type: String },
+	userAgent: { type: String },
+	ipAddress: { type: String },
 });
 
 export default mongoose.model<IRefreshTokenDocument>('RefreshToken', refreshTokenSchema);

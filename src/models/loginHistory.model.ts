@@ -1,6 +1,6 @@
 import mongoose from 'mongoose';
 
-enum LoginAttempt {
+export enum LoginAttemptStatus {
 	SUCCESS = 'success',
 	FAILED = 'failed',
 }
@@ -8,16 +8,18 @@ export interface ILoginHistoryDocument extends mongoose.Document {
 	userId: mongoose.Types.ObjectId;
 	ipAddress: string;
 	userAgent: string;
-	attempt: LoginAttempt;
-	loginAt: Date;
+	attemptStatus: LoginAttemptStatus;
+	lastAttemptAt: Date;
+	loginAt?: Date;
 }
 
 const loginHistorySchema = new mongoose.Schema<ILoginHistoryDocument>({
 	userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
 	ipAddress: { type: String, required: true },
 	userAgent: { type: String, required: true },
-	attempt: { type: String, enum: Object.values(LoginAttempt), required: true },
-	loginAt: { type: Date, required: true },
+	attemptStatus: { type: String, enum: Object.values(LoginAttemptStatus), required: true },
+	lastAttemptAt: { type: Date },
+	loginAt: { type: Date },
 });
 
 export default mongoose.model<ILoginHistoryDocument>('LoginHistory', loginHistorySchema);

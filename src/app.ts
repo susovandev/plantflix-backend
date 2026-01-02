@@ -16,6 +16,9 @@ export default function initializeApp(): Application {
 	// Helmet middleware
 	app.use(helmet());
 
+	// Trust proxy
+	app.set('trust proxy', true);
+
 	// CORS middleware
 	app.use(corsConfig);
 
