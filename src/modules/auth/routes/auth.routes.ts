@@ -12,6 +12,8 @@ import { verifyOTPController } from '../controllers/verifyOtp.controller';
 import { resendOTPController } from '../controllers/resendOtp.controller';
 import { loginController } from '../controllers/login.controller';
 import { refreshTokenController } from '../controllers/refreshToken.controller';
+import { logoutController } from '../controllers/logout.controller';
+import { AuthCheck } from 'middlewares/auth.middleware';
 
 const authRouter = Router();
 
@@ -42,6 +44,8 @@ authRouter.post(
 	validateRequest(loginValidationSchema),
 	loginController,
 );
+
+authRouter.get('/logout', AuthCheck, logoutController);
 
 authRouter.get('/refresh', refreshTokenController);
 
