@@ -18,3 +18,10 @@ export type TVerifyOtpDTO = z.infer<typeof verifyOTPValidationSchema>;
 export const resendOTPValidationSchema = z.object({ email: z.string().email() });
 
 export type TResendOtpDTO = z.infer<typeof resendOTPValidationSchema>;
+
+export const loginValidationSchema = z.object({
+	email: z.string().email(),
+	password: z.string().min(6, { message: 'Password must be at least 6 characters' }).max(255),
+});
+
+export type TLoginDTO = z.infer<typeof loginValidationSchema>;
