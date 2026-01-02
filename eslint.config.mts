@@ -20,6 +20,7 @@ export default defineConfig([
 					variablesIgnorePattern: '^_',
 				},
 			],
+			'no-console': 'error',
 		},
 	},
 	tseslint.configs.recommended,
