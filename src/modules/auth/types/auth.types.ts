@@ -14,3 +14,8 @@ export interface IVerifyOtpBody extends Request {
 export interface IResendOtpBody extends Request {
 	email: string;
 }
+
+export interface ILoginBody extends Request {
+	email: string;
+	password: string;
+}
