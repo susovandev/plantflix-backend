@@ -9,11 +9,6 @@ import verificationCodeModel, {
 	VerificationCodeStatus,
 	VerificationCodeType,
 } from 'models/verificationCode.model';
-import {
-	EMAIL_QUEUE_ACTION_NAME,
-	OTP_RESEND_COOLDOWN_TIME,
-	VERIFICATION_CODE_EXPIRATION_TIME,
-} from '../../../constants';
 import getRandomOTP from 'helper/otp.helper';
 import emailModel, { EmailSource, EmailStatus } from 'models/email.model';
 import { emailQueue } from 'jobs/queues/email.queue';
@@ -21,6 +16,11 @@ import { StatusCodes } from 'http-status-codes';
 import { ApiResponse } from 'lib/response';
 import { resendOtpEmailTemplate } from 'templates/auth/resendOTP.template';
 import { env } from 'config/env.config';
+import {
+	OTP_RESEND_COOLDOWN_TIME,
+	VERIFICATION_CODE_EXPIRATION_TIME,
+} from 'constants/auth/auth.constants';
+import { EMAIL_QUEUE_ACTION_NAME } from 'constants/Jobs/job.constants';
 
 export const resendOTPController = asyncHandler(
 	async (req: Request<object, object, IResendOtpBody>, res: Response) => {

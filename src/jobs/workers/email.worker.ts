@@ -4,7 +4,7 @@ import emailModel, { EmailStatus } from 'models/email.model';
 import { sendEmailService } from 'helper/sendEmail.helper';
 import Logger from 'lib/logger';
 import { type ISendEmailJob } from '../queues/email.queue';
-import { EMAIL_JOB_CONCURRENCY, EMAIL_QUEUE_NAME } from '../../constants';
+import { EMAIL_JOB_CONCURRENCY, EMAIL_QUEUE_NAME } from 'constants/Jobs/job.constants';
 
 export const emailWorker = new Worker<ISendEmailJob>(
 	EMAIL_QUEUE_NAME,

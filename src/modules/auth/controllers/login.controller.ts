@@ -9,9 +9,9 @@ import loginHistoryModel, { LoginAttemptStatus } from 'models/loginHistory.model
 import refreshTokenModel from 'models/refreshToken.model';
 import { InternalServerError, UnauthorizedError } from 'lib/errors';
 import { comparePassword } from 'helper/password.helper';
-import { ACCESS_TOKEN_TTL, REFRESH_TOKEN_TTL } from '../../../constants';
-import { env } from 'config/env.config';
 import { signAccessAndRefreshToken } from 'helper/token.helper';
+import { ACCESS_TOKEN_TTL, REFRESH_TOKEN_TTL } from 'constants/auth/auth.constants';
+import { env } from 'config/env.config';
 
 export interface ILogin {
 	userId: string;
@@ -112,7 +112,7 @@ export const loginController = asyncHandler(
 		// TODO: Store RefreshToken in db
 		await refreshTokenModel.create({
 			userId: user._id.toString(),
-			tokenHash: refreshToken,
+			token: refreshToken,
 			expiredAt: new Date(Date.now() + REFRESH_TOKEN_TTL),
 			ipAddress,
 			userAgent,

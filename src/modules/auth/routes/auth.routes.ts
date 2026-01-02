@@ -11,6 +11,7 @@ import { validateEmptyBody } from 'middlewares/validateBody.middleware';
 import { verifyOTPController } from '../controllers/verifyOtp.controller';
 import { resendOTPController } from '../controllers/resendOtp.controller';
 import { loginController } from '../controllers/login.controller';
+import { refreshTokenController } from '../controllers/refreshToken.controller';
 
 const authRouter = Router();
 
@@ -41,5 +42,7 @@ authRouter.post(
 	validateRequest(loginValidationSchema),
 	loginController,
 );
+
+authRouter.get('/refresh', refreshTokenController);
 
 export default authRouter;

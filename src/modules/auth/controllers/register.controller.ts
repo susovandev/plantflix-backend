@@ -16,7 +16,7 @@ import Logger from 'lib/logger';
 import getRandomOTP from 'helper/otp.helper';
 import { registerEmailTemplate } from 'templates/auth/registerMail.template';
 import { emailQueue } from 'jobs/queues/email.queue';
-import { VERIFICATION_CODE_EXPIRATION_TIME } from '../../../constants';
+import { VERIFICATION_CODE_EXPIRATION_TIME } from 'constants/auth/auth.constants';
 
 export const registerController = asyncHandler(
 	async (req: Request<object, object, IRegisterBody>, res: Response) => {

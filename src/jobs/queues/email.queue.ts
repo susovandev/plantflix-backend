@@ -1,6 +1,10 @@
 import { Queue } from 'bullmq';
 import { redisConnection } from 'config/redis.config';
-import { EMAIL_JOB_DELAY, EMAIL_JOB_RETRY_COUNT, EMAIL_QUEUE_NAME } from '../../constants';
+import {
+	EMAIL_JOB_DELAY,
+	EMAIL_JOB_RETRY_COUNT,
+	EMAIL_QUEUE_NAME,
+} from 'constants/Jobs/job.constants';
 
 export interface ISendEmailJob {
 	emailId: string;

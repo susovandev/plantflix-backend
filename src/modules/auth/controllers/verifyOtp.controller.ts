@@ -13,8 +13,8 @@ import verificationCodeModel, {
 import emailModel, { EmailSource, EmailStatus } from 'models/email.model';
 import { env } from 'config/env.config';
 import { emailQueue } from 'jobs/queues/email.queue';
-import { EMAIL_QUEUE_ACTION_NAME } from '../../../constants';
 import { accountVerifiedTemplate } from 'templates/auth/accountVerified.template';
+import { EMAIL_QUEUE_ACTION_NAME } from 'constants/Jobs/job.constants';
 
 export const verifyOTPController = asyncHandler(
 	async (req: Request<object, object, IVerifyOtpBody>, res: Response) => {

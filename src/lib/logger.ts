@@ -1,5 +1,5 @@
 import winston from 'winston';
-import { env } from 'config/env.config';
+// import { env } from 'config/env.config';
 
 const levels = {
 	error: 0,
@@ -10,7 +10,7 @@ const levels = {
 };
 
 const level = () => {
-	const environment = env.NODE_ENV;
+	const environment = process.env['NODE_ENV'];
 	const isDevelopment = environment === 'development';
 	return isDevelopment ? 'debug' : 'warn';
 };
@@ -46,7 +46,7 @@ const Logger = winston.createLogger({
 	levels,
 	format,
 	defaultMeta: {
-		service: env.SERVICE_NAME,
+		service: process.env['SERVICE_NAME'],
 	},
 	transports,
 });

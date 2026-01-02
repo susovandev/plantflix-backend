@@ -1,5 +1,5 @@
 import bcrypt from 'bcryptjs';
-import { BCRYPT_SALT_ROUNDS } from '../constants';
+import { BCRYPT_SALT_ROUNDS } from 'constants/app/app.constants';
 
 export async function hashPassword(password: string): Promise<string> {
 	const genSalt = await bcrypt.genSalt(BCRYPT_SALT_ROUNDS);
