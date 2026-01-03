@@ -6,6 +6,7 @@ import { errorHandler } from 'middlewares/error.middleware';
 import morganMiddleware from 'middlewares/morgan.middleware';
 import { notFoundHandler } from 'middlewares/notfound.middleware';
 import configureRoutes from 'routes';
+import { REQUEST_BODY_SIZE_LIMIT } from 'constants/app/app.constants';
 
 export default function initializeApp(): Application {
 	const app: Application = express();
@@ -23,8 +24,8 @@ export default function initializeApp(): Application {
 	app.use(corsConfig);
 
 	// Body-parser middlewares
-	app.use(express.json());
-	app.use(express.urlencoded({ extended: true }));
+	app.use(express.json({ limit: REQUEST_BODY_SIZE_LIMIT }));
+	app.use(express.urlencoded({ extended: true, limit: REQUEST_BODY_SIZE_LIMIT }));
 
 	// Cookie-parser middleware
 	app.use(cookieParser());

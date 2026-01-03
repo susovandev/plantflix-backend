@@ -1,28 +1,30 @@
-import jwt from 'jsonwebtoken';
-import { env } from 'config/env.config';
 import type { Response } from 'express';
+import type { AuthRequest } from 'middlewares/auth.middleware';
 import { StatusCodes } from 'http-status-codes';
 import { asyncHandler } from 'lib/asyncHandler';
 import { UnauthorizedError } from 'lib/errors';
-import Logger from 'lib/logger';
 import { ApiResponse } from 'lib/response';
-import type { AuthRequest } from 'middlewares/auth.middleware';
+import { env } from 'config/env.config';
+import { verifyRefreshToken } from 'helper/token.helper';
 import refreshTokenModel from 'models/refreshToken.model';
+import Logger from 'lib/logger';
 
 export const logoutController = asyncHandler(async (req: AuthRequest, res: Response) => {
 	const userId = req.user!.userId;
 	const refreshToken = req.cookies?.['refreshToken'];
 
 	Logger.info(`Logout attempt for user: ${userId}`);
+
 	if (!refreshToken) {
-		Logger.error(`No refresh token provided for user: ${userId}`);
+		Logger.warn(`No refresh token provided for user: ${userId}`);
 		throw new UnauthorizedError('Unauthorized');
 	}
 
-	try {
-		jwt.verify(refreshToken, env.REFRESH_TOKEN_SECRET_KEY);
-	} catch (err) {
-		Logger.error(`Invalid or expired refresh token for user: ${userId}`, (err as Error).message);
+	// Verify refresh token
+	const decodedToken = verifyRefreshToken(refreshToken);
+
+	if (!decodedToken) {
+		Logger.warn(`Invalid or expired refresh token for user: ${userId}`);
 		throw new UnauthorizedError('Unauthorized');
 	}
 

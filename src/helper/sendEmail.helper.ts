@@ -2,7 +2,7 @@ import transporter from 'config/nodeMailer.config';
 import { env } from 'config/env.config';
 import Logger from 'lib/logger';
 
-interface IEmailTemplate {
+export interface IEmailTemplate {
 	sender?: string;
 	recipient: string;
 	subject: string;

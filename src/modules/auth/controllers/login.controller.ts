@@ -3,15 +3,15 @@ import { asyncHandler } from 'lib/asyncHandler';
 import { ILoginBody } from '../types/auth.types';
 import { StatusCodes } from 'http-status-codes';
 import { ApiResponse } from 'lib/response';
-import Logger from 'lib/logger';
-import userModel, { AccountStatus } from 'models/user.model';
-import loginHistoryModel, { LoginAttemptStatus } from 'models/loginHistory.model';
-import refreshTokenModel from 'models/refreshToken.model';
+import { env } from 'config/env.config';
 import { InternalServerError, UnauthorizedError } from 'lib/errors';
 import { comparePassword } from 'helper/password.helper';
 import { signAccessAndRefreshToken } from 'helper/token.helper';
 import { ACCESS_TOKEN_TTL, REFRESH_TOKEN_TTL } from 'constants/auth/auth.constants';
-import { env } from 'config/env.config';
+import userModel, { AccountStatus } from 'models/user.model';
+import loginHistoryModel, { LoginAttemptStatus } from 'models/loginHistory.model';
+import refreshTokenModel from 'models/refreshToken.model';
+import Logger from 'lib/logger';
 
 export interface ILogin {
 	userId: string;
@@ -25,6 +25,8 @@ export const trackingLoginHistory = async ({
 	userAgent,
 	attemptStatus,
 }: ILogin) => {
+	Logger.info(`Tracking login history for userId: ${userId} with status: ${attemptStatus}`);
+
 	const loginHistory = await loginHistoryModel.create({
 		userId,
 		ipAddress,
@@ -32,31 +34,44 @@ export const trackingLoginHistory = async ({
 		attemptStatus,
 		lastAttemptAt: new Date(),
 	});
+
+	if (!loginHistory) {
+		Logger.warn(`Failed to record login history for userId: ${userId}`);
+		throw new InternalServerError('Failed to record login history');
+	}
+
 	if (loginHistory.attemptStatus === 'success') {
 		loginHistory.loginAt = new Date();
 		await loginHistory.save();
 	}
+
+	Logger.info(`Login history recorded for userId: ${userId} with status: ${attemptStatus}`);
+	return loginHistory;
 };
 
 export const loginController = asyncHandler(
 	async (req: Request<object, object, ILoginBody>, res: Response) => {
 		const { email, password } = req.body;
 		const normalizedEmail = email.toLowerCase();
+		Logger.info(`Login attempt for email: ${normalizedEmail}`);
+
 		const ipAddress = req.ip ?? '0.0.0.0';
 		const userAgent = req.headers['user-agent'] ?? 'Unknown';
 
-		Logger.info(`Login attempt for email: ${normalizedEmail}`);
 		// TODO: check if email exists in db
 		const user = await userModel.findOne({ email: normalizedEmail });
+
 		if (!user) {
-			Logger.error(`Login attempt failed for email: ${normalizedEmail}`);
+			Logger.warn(`Login attempt failed for email: ${normalizedEmail}`);
 			throw new UnauthorizedError('Invalid email or password');
 		}
 
 		// TODO: Check password is correct
 		const isPasswordValid = await comparePassword(password, user?.passwordHash);
+
 		if (!isPasswordValid) {
-			Logger.error(`Password validation failed for email: ${normalizedEmail}`);
+			Logger.warn(`Password validation failed for email: ${normalizedEmail}`);
+
 			await trackingLoginHistory({
 				userId: user._id.toString(),
 				ipAddress,
@@ -68,7 +83,8 @@ export const loginController = asyncHandler(
 
 		// TODO: Check if account is verified
 		if (!user.accountVerified) {
-			Logger.error(`User account is not verified for email: ${normalizedEmail}`);
+			Logger.warn(`User account is not verified for email: ${normalizedEmail}`);
+
 			await trackingLoginHistory({
 				userId: user._id.toString(),
 				ipAddress,
@@ -80,7 +96,8 @@ export const loginController = asyncHandler(
 
 		// TODO: Check if account is suspended
 		if (user.accountStatus === AccountStatus.SUSPENDED) {
-			Logger.error(`User account is suspended for email: ${normalizedEmail}`);
+			Logger.warn(`User account is suspended for email: ${normalizedEmail}`);
+
 			await trackingLoginHistory({
 				userId: user._id.toString(),
 				ipAddress,
@@ -92,7 +109,8 @@ export const loginController = asyncHandler(
 
 		// TODO: Check if account is active
 		if (user && user.accountStatus !== AccountStatus.ACTIVE) {
-			Logger.error(`User account is not active for email: ${normalizedEmail}`);
+			Logger.warn(`User account is not active for email: ${normalizedEmail}`);
+
 			await trackingLoginHistory({
 				userId: user._id.toString(),
 				ipAddress,
@@ -104,6 +122,7 @@ export const loginController = asyncHandler(
 
 		// TODO: Generate AccessToken and RefreshToken
 		const { accessToken, refreshToken } = signAccessAndRefreshToken(user);
+
 		if (!accessToken || !refreshToken) {
 			Logger.error(`Failed to generate access and refresh token for email: ${normalizedEmail}`);
 			throw new InternalServerError('Failed to generate access and refresh token');

@@ -4,19 +4,19 @@ import { asyncHandler } from 'lib/asyncHandler';
 import { StatusCodes } from 'http-status-codes';
 import { ApiResponse } from 'lib/response';
 import { IRegisterBody } from '../types/auth.types';
-import userModel, { AccountStatus } from 'models/user.model';
 import verificationCodeModel, {
 	VerificationCodeStatus,
 	VerificationCodeType,
 } from 'models/verificationCode.model';
-import emailModel, { EmailSource, EmailStatus } from 'models/email.model';
 import { ConflictError, InternalServerError } from 'lib/errors';
 import { hashPassword } from 'helper/password.helper';
-import Logger from 'lib/logger';
-import getRandomOTP from 'helper/otp.helper';
 import { registerEmailTemplate } from 'templates/auth/registerMail.template';
 import { emailQueue } from 'jobs/queues/email.queue';
 import { VERIFICATION_CODE_EXPIRATION_TIME } from 'constants/auth/auth.constants';
+import emailModel, { EmailSource, EmailStatus } from 'models/email.model';
+import userModel, { AccountStatus } from 'models/user.model';
+import getRandomOTP from 'helper/otp.helper';
+import Logger from 'lib/logger';
 
 export const registerController = asyncHandler(
 	async (req: Request<object, object, IRegisterBody>, res: Response) => {
@@ -40,7 +40,7 @@ export const registerController = asyncHandler(
 			//? Todo: Hash password
 			const hashedPassword = await hashPassword(password);
 			if (!hashedPassword) {
-				Logger.error(`Password hashing failed for email: ${normalizedEmail}`);
+				Logger.warn(`Password hashing failed for email: ${normalizedEmail}`);
 				throw new InternalServerError('Failed to hash password');
 			}
 
@@ -58,7 +58,7 @@ export const registerController = asyncHandler(
 				{ session },
 			);
 			if (!newUser) {
-				Logger.error(`User creation failed for email: ${normalizedEmail}`);
+				Logger.warn(`User creation failed for email: ${normalizedEmail}`);
 				throw new InternalServerError('Failed to create user');
 			}
 
@@ -73,14 +73,14 @@ export const registerController = asyncHandler(
 						code: code,
 						verificationStatus: VerificationCodeStatus.PENDING,
 						type: VerificationCodeType.ACCOUNT_ACTIVATION,
-						issuedAt: new Date(),
 						expiredAt: new Date(Date.now() + VERIFICATION_CODE_EXPIRATION_TIME),
 					},
 				],
 				{ session },
 			);
+
 			if (!verificationCode) {
-				Logger.error(`Verification code creation failed for email: ${normalizedEmail}`);
+				Logger.warn(`Verification code creation failed for email: ${normalizedEmail}`);
 				throw new InternalServerError('Failed to create verification code');
 			}
 
@@ -100,8 +100,9 @@ export const registerController = asyncHandler(
 				],
 				{ session },
 			);
+
 			if (!emailDoc) {
-				Logger.error(`Email creation failed for email: ${normalizedEmail}`);
+				Logger.warn(`Email creation failed for email: ${normalizedEmail}`);
 				throw new InternalServerError('Failed to create email');
 			}
 
@@ -129,7 +130,7 @@ export const registerController = asyncHandler(
 			await session.abortTransaction();
 			session.endSession();
 
-			Logger.error(`Registration transaction failed for ${normalizedEmail}`, error);
+			Logger.warn(`Registration transaction failed for ${normalizedEmail}`, error);
 			throw error;
 		}
 	},

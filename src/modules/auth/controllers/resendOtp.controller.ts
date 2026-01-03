@@ -1,17 +1,12 @@
 import { Request, Response } from 'express';
 import { asyncHandler } from 'lib/asyncHandler';
 import { IResendOtpBody } from '../types/auth.types';
-import mongoose from 'mongoose';
-import userModel from 'models/user.model';
-import Logger from 'lib/logger';
 import { BadRequestError, ConflictError, InternalServerError, NotFoundError } from 'lib/errors';
 import verificationCodeModel, {
+	IVerificationCodeDocument,
 	VerificationCodeStatus,
 	VerificationCodeType,
 } from 'models/verificationCode.model';
-import getRandomOTP from 'helper/otp.helper';
-import emailModel, { EmailSource, EmailStatus } from 'models/email.model';
-import { emailQueue } from 'jobs/queues/email.queue';
 import { StatusCodes } from 'http-status-codes';
 import { ApiResponse } from 'lib/response';
 import { resendOtpEmailTemplate } from 'templates/auth/resendOTP.template';
@@ -21,6 +16,12 @@ import {
 	VERIFICATION_CODE_EXPIRATION_TIME,
 } from 'constants/auth/auth.constants';
 import { EMAIL_QUEUE_ACTION_NAME } from 'constants/Jobs/job.constants';
+import { emailQueue } from 'jobs/queues/email.queue';
+import emailModel, { EmailSource, EmailStatus } from 'models/email.model';
+import getRandomOTP from 'helper/otp.helper';
+import mongoose from 'mongoose';
+import userModel from 'models/user.model';
+import Logger from 'lib/logger';
 
 export const resendOTPController = asyncHandler(
 	async (req: Request<object, object, IResendOtpBody>, res: Response) => {
@@ -43,14 +44,14 @@ export const resendOTPController = asyncHandler(
 		}
 
 		// ? TODO: check if user has recently requested an OTP
-		const lastOtp = await verificationCodeModel
+		const lastOtp = (await verificationCodeModel
 			.findOne({
 				userId: user._id,
 				type: VerificationCodeType.ACCOUNT_ACTIVATION,
 			})
-			.sort({ createdAt: -1 });
+			.sort({ createdAt: -1 })) as IVerificationCodeDocument;
 
-		if (lastOtp && Date.now() - lastOtp.issuedAt.getTime() < OTP_RESEND_COOLDOWN_TIME) {
+		if (lastOtp && Date.now() - lastOtp?.createdAt.getTime() < OTP_RESEND_COOLDOWN_TIME) {
 			throw new BadRequestError('Please wait before requesting another OTP');
 		}
 
@@ -90,7 +91,7 @@ export const resendOTPController = asyncHandler(
 			);
 
 			if (!verificationCode) {
-				Logger.error(`Verification code creation failed for email: ${email}`);
+				Logger.warn(`Verification code creation failed for email: ${email}`);
 				throw new InternalServerError('Failed to create verification code');
 			}
 
@@ -116,7 +117,7 @@ export const resendOTPController = asyncHandler(
 			);
 
 			if (!emailDoc) {
-				Logger.error(`Email creation failed for email: ${email}`);
+				Logger.warn(`Email creation failed for email: ${email}`);
 				throw new InternalServerError('Failed to create email');
 			}
 
@@ -126,7 +127,7 @@ export const resendOTPController = asyncHandler(
 		} catch (error) {
 			//* Rollback everything
 			await session.abortTransaction();
-			Logger.error(`Resend transaction failed for ${normalizedEmail}`, error);
+			Logger.warn(`Resend transaction failed for ${normalizedEmail}`, error);
 			throw error;
 		} finally {
 			await session.endSession();

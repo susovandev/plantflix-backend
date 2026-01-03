@@ -13,7 +13,7 @@ export enum EmailStatus {
 	PENDING = 'pending',
 }
 
-interface IEmailDocument extends mongoose.Document {
+export interface IEmailDocument extends mongoose.Document {
 	sender: mongoose.Types.ObjectId;
 	recipient: mongoose.Types.ObjectId;
 	recipientEmail: string;

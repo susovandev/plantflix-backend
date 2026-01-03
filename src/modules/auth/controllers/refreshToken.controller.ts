@@ -1,15 +1,14 @@
-import jwt from 'jsonwebtoken';
 import type { Request, Response } from 'express';
 import { asyncHandler } from 'lib/asyncHandler';
-import { UnauthorizedError } from 'lib/errors';
+import { InternalServerError, UnauthorizedError } from 'lib/errors';
 import { env } from 'config/env.config';
-import refreshTokenModel, { IRefreshTokenDocument } from 'models/refreshToken.model';
-import userModel, { AccountStatus } from 'models/user.model';
-import { signAccessAndRefreshToken } from 'helper/token.helper';
 import { ApiResponse } from 'lib/response';
 import { StatusCodes } from 'http-status-codes';
-import Logger from 'lib/logger';
 import { ACCESS_TOKEN_TTL, REFRESH_TOKEN_TTL } from 'constants/auth/auth.constants';
+import { signAccessAndRefreshToken, verifyRefreshToken } from 'helper/token.helper';
+import userModel, { AccountStatus } from 'models/user.model';
+import refreshTokenModel, { IRefreshTokenDocument } from 'models/refreshToken.model';
+import Logger from 'lib/logger';
 
 export interface IDecodedToken {
 	sub: string;
@@ -17,6 +16,7 @@ export interface IDecodedToken {
 	iat: number;
 	exp: number;
 }
+
 export const refreshTokenController = asyncHandler(async (req: Request, res: Response) => {
 	// TODO: Get refresh token from cookies
 	const oldToken = req.cookies['refreshToken'];
@@ -24,16 +24,17 @@ export const refreshTokenController = asyncHandler(async (req: Request, res: Res
 		req.ip || (req.headers['x-forwarded-for'] as string) || (req.socket.remoteAddress as string);
 	const userAgent = req.get('user-agent') ?? 'unknown';
 
+	Logger.info(`Refresh token request received with ip address: ${ipAddress}`);
+
 	if (!oldToken) {
 		Logger.warn('No refresh token found');
 		throw new UnauthorizedError('Unauthorized');
 	}
 
 	// TODO: Verify refresh token
-	let decoded: IDecodedToken;
-	try {
-		decoded = jwt.verify(oldToken, env.REFRESH_TOKEN_SECRET_KEY) as IDecodedToken;
-	} catch {
+	const decoded = verifyRefreshToken(oldToken) as IDecodedToken;
+	if (!decoded) {
+		Logger.warn('Invalid refresh token');
 		throw new UnauthorizedError('Unauthorized');
 	}
 
@@ -51,6 +52,7 @@ export const refreshTokenController = asyncHandler(async (req: Request, res: Res
 	}
 
 	if (storedToken.expiredAt < new Date()) {
+		Logger.warn('Refresh token has expired');
 		throw new UnauthorizedError('Session expired');
 	}
 
@@ -67,13 +69,18 @@ export const refreshTokenController = asyncHandler(async (req: Request, res: Res
 
 	const { accessToken, refreshToken: newRefreshToken } = signAccessAndRefreshToken(user);
 
-	await refreshTokenModel.create({
+	const newRefreshTokenDoc = await refreshTokenModel.create({
 		userId: user._id,
 		token: newRefreshToken,
 		expiredAt: new Date(Date.now() + REFRESH_TOKEN_TTL),
 		ipAddress,
 		userAgent,
 	});
+
+	if (!newRefreshTokenDoc) {
+		Logger.warn('Failed to create new refresh token');
+		throw new InternalServerError('Could not refresh token');
+	}
 
 	res.cookie('accessToken', accessToken, {
 		httpOnly: true,

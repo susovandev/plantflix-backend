@@ -10,7 +10,7 @@ export enum VerificationCodeType {
 	PASSWORD_RESET = 'passwordReset',
 }
 
-interface IVerificationCodeDocument extends mongoose.Document {
+export interface IVerificationCodeDocument extends mongoose.Document {
 	userId: mongoose.Types.ObjectId;
 	code: string;
 	verificationStatus: VerificationCodeStatus;
@@ -18,21 +18,26 @@ interface IVerificationCodeDocument extends mongoose.Document {
 	issuedAt: Date;
 	expiredAt: Date;
 	verifiedAt: Date;
+	createdAt: Date;
+	updatedAt: Date;
 }
 
-const verificationCodeSchema = new mongoose.Schema<IVerificationCodeDocument>({
-	userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
-	code: { type: String, required: true },
-	verificationStatus: {
-		type: String,
-		enum: Object.values(VerificationCodeStatus),
-		default: VerificationCodeStatus.PENDING,
+const verificationCodeSchema = new mongoose.Schema<IVerificationCodeDocument>(
+	{
+		userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', required: true },
+		code: { type: String, required: true },
+		verificationStatus: {
+			type: String,
+			enum: Object.values(VerificationCodeStatus),
+			default: VerificationCodeStatus.PENDING,
+		},
+		type: { type: String, enum: Object.values(VerificationCodeType) },
+		issuedAt: { type: Date, default: Date.now },
+		expiredAt: { type: Date, required: true },
+		verifiedAt: { type: Date },
 	},
-	type: { type: String, enum: Object.values(VerificationCodeType) },
-	issuedAt: { type: Date, default: Date.now },
-	expiredAt: { type: Date, required: true },
-	verifiedAt: { type: Date },
-});
+	{ timestamps: true },
+);
 
 verificationCodeSchema.index({ userId: 1, code: 1, type: 1, verificationStatus: 1 });
 

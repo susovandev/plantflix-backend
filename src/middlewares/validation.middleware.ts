@@ -17,6 +17,7 @@ export const validateRequest = (schema: z.ZodType, location: TLocation = 'body')
 
 		if (!result.success) {
 			Logger.warn(`Invalid request data - ${JSON.stringify(result.error.issues[0]?.path)}`);
+
 			const badRequestError = new BadRequestError('Invalid request data', {
 				path: result.error.issues[0]?.path,
 				message: result.error.issues[0]?.message,

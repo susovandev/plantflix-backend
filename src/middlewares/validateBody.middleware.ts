@@ -17,6 +17,7 @@ export const validateEmptyBody = (
 ): Response | void => {
 	if (req.body === undefined || Object.keys(req.body).length === 0) {
 		Logger.warn(`Request blocked: empty request body - ${JSON.stringify(req.body)}`);
+
 		return res.status(StatusCodes.BAD_REQUEST).json({
 			status: false,
 			statusCode: StatusCodes.BAD_REQUEST,

@@ -2,17 +2,19 @@ import { Worker, Job } from 'bullmq';
 import { redisConnection } from 'config/redis.config';
 import emailModel, { EmailStatus } from 'models/email.model';
 import { sendEmailService } from 'helper/sendEmail.helper';
-import Logger from 'lib/logger';
 import { type ISendEmailJob } from '../queues/email.queue';
 import { EMAIL_JOB_CONCURRENCY, EMAIL_QUEUE_NAME } from 'constants/Jobs/job.constants';
+import Logger from 'lib/logger';
 
 export const emailWorker = new Worker<ISendEmailJob>(
 	EMAIL_QUEUE_NAME,
 	async (job: Job<ISendEmailJob>) => {
 		Logger.info(`Processing email job: ${job.id}`);
+
 		const { emailId } = job.data;
 
 		const emailDoc = await emailModel.findById(emailId);
+
 		if (!emailDoc) {
 			Logger.error(`Email document not found: ${emailId}`);
 			throw new Error('Email document not found');
@@ -27,6 +29,7 @@ export const emailWorker = new Worker<ISendEmailJob>(
 
 			emailDoc.status = EmailStatus.SENT;
 			emailDoc.sendAt = new Date();
+
 			await emailDoc.save({ session: null, validateBeforeSave: false });
 
 			Logger.info(`Email sent successfully: ${emailId}`);

@@ -1,5 +1,4 @@
 import winston from 'winston';
-// import { env } from 'config/env.config';
 
 const levels = {
 	error: 0,
@@ -7,12 +6,6 @@ const levels = {
 	info: 2,
 	http: 3,
 	debug: 4,
-};
-
-const level = () => {
-	const environment = process.env['NODE_ENV'];
-	const isDevelopment = environment === 'development';
-	return isDevelopment ? 'debug' : 'warn';
 };
 
 const colors = {
@@ -25,19 +18,26 @@ const colors = {
 
 winston.addColors(colors);
 
+const level = () => {
+	const environment = process.env['NODE_ENV'] || 'development';
+	return environment === 'development' ? 'debug' : 'warn';
+};
+
 const format = winston.format.combine(
 	winston.format.timestamp({ format: 'YYYY-MM-DD HH:mm:ss:ms' }),
 	winston.format.colorize({ all: true }),
 	winston.format.errors({ stack: true }),
-	winston.format.printf((info) => `${info['timestamp']} ${info.level}: ${info.message}`),
+	winston.format.splat(),
+	winston.format.printf((info) => {
+		const msg =
+			typeof info.message === 'object' ? JSON.stringify(info.message, null, 2) : info.message;
+		return `${info['timestamp']} ${info.level}: ${msg}`;
+	}),
 );
 
 const transports = [
-	new winston.transports.Console(),
-	new winston.transports.File({
-		filename: 'logs/error.log',
-		level: 'error',
-	}),
+	new winston.transports.Console({ level: 'debug' }),
+	new winston.transports.File({ filename: 'logs/error.log', level: 'error' }),
 	new winston.transports.File({ filename: 'logs/all.log' }),
 ];
 

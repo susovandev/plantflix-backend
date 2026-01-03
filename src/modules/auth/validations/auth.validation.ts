@@ -1,5 +1,6 @@
 import { z } from 'zod';
 
+// Registration Validation Schema
 export const registerValidationSchema = z.object({
 	name: z.string().min(3, { message: 'Name must be at least 3 characters' }).max(255),
 	email: z.string().email(),
@@ -8,6 +9,7 @@ export const registerValidationSchema = z.object({
 
 export type TRegisterDTO = z.infer<typeof registerValidationSchema>;
 
+// OTP Verification Validation Schema
 export const verifyOTPValidationSchema = z.object({
 	email: z.string().email(),
 	code: z.string().regex(/^\d{6}$/, { message: 'Code must be a 6-digit numeric string' }),
@@ -15,6 +17,7 @@ export const verifyOTPValidationSchema = z.object({
 
 export type TVerifyOtpDTO = z.infer<typeof verifyOTPValidationSchema>;
 
+// Resend OTP Validation Schema
 export const resendOTPValidationSchema = z.object({ email: z.string().email() });
 
 export type TResendOtpDTO = z.infer<typeof resendOTPValidationSchema>;
