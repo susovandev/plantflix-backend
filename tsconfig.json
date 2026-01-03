@@ -4,10 +4,9 @@
 		"outDir": "./dist",
 		"module": "nodenext",
 		"target": "esnext",
-		"types": [],
 		"baseUrl": "./src",
 		"paths": {
-			"@/*": ["src/*"]
+			"@/*": ["*"]
 		},
 		"typeRoots": ["./src/types", "./node_modules/@types"],
 		"sourceMap": true,

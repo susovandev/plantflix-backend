@@ -4,14 +4,11 @@ import { IDecodedToken } from 'modules/auth/controllers/refreshToken.controller'
 import Logger from 'lib/logger';
 import { verifyAccessToken } from 'helper/token.helper';
 
-export interface AuthRequest extends Request {
-	user?: {
-		userId: string;
-	};
-}
-export const AuthCheck = async (req: AuthRequest, _res: Response, next: NextFunction) => {
+export const AuthCheck = async (req: Request, _res: Response, next: NextFunction) => {
 	Logger.info(`Auth Request received with ip address: ${req.ip}`);
+
 	const accessToken = req.cookies['accessToken'];
+
 	if (!accessToken) {
 		Logger.warn('No access token provided in cookies');
 		throw new UnauthorizedError('Unauthorized');
@@ -27,8 +24,9 @@ export const AuthCheck = async (req: AuthRequest, _res: Response, next: NextFunc
 
 	req.user = {
 		userId: decodedToken.sub,
+		role: decodedToken.role,
 	};
 
-	Logger.info(`User authenticated with userId: ${req.user.userId}`);
+	Logger.debug(`User authenticated with userId: ${req.user.userId}`);
 	next();
 };
