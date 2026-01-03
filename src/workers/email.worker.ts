@@ -2,7 +2,7 @@ import { Worker, Job } from 'bullmq';
 import { redisConnection } from 'config/redis.config';
 import emailModel, { EmailStatus } from 'models/email.model';
 import { sendEmailService } from 'helper/sendEmail.helper';
-import { type ISendEmailJob } from '../queues/email.queue';
+import { type ISendEmailJob } from '../jobs/queues/email.queue';
 import { EMAIL_JOB_CONCURRENCY, EMAIL_QUEUE_NAME } from 'constants/Jobs/job.constants';
 import Logger from 'lib/logger';
 

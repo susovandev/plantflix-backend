@@ -1,9 +1,12 @@
-import './jobs/workers/email.worker';
+import './workers/email.worker';
+import './workers/cleanup.worker';
+
 import initializeApp from 'app';
 import { env } from 'config/env.config';
 import connectDB, { disconnectDB } from 'db/db';
 import Logger from 'lib/logger';
 import { Server } from 'http';
+import { registerCleanupJob } from 'jobs/cleanup.job';
 
 let server: Server;
 let isShuttingDown = false;
@@ -47,6 +50,7 @@ export default async function bootstrapApp() {
 	try {
 		await connectDB();
 
+		await registerCleanupJob();
 		server = app.listen(env.PORT, () => {
 			Logger.info(
 				`${env.SERVICE_NAME} is running at http://localhost:${env.PORT} in ${env.NODE_ENV} mode`,

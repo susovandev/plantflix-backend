@@ -12,7 +12,10 @@
 		"format:fix": "prettier --write \"**/*.{ts,tsx}\"",
 		"lint": "eslint src",
 		"lint:fix": "eslint src --fix",
-		"prepare": "husky"
+		"prepare": "husky",
+
+		"email-worker": "node dist/workers/email.worker.js",
+		"cleanup-worker": "node dist/workers/cleanup.worker.js"
 	},
 	"lint-staged": {
 		"**/*.{ts,tsx}": [
@@ -46,6 +49,8 @@
 		"typescript-eslint": "^8.51.0"
 	},
 	"dependencies": {
+		"@bull-board/api": "^6.16.2",
+		"@bull-board/express": "^6.16.2",
 		"bcryptjs": "^3.0.3",
 		"bullmq": "^5.66.4",
 		"cookie-parser": "^1.4.7",
